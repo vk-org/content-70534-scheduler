@@ -1,0 +1,45 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "name": {
+            "value": "ENTER A FUNCTION NAME HERE"
+        },
+        "storageName": {
+            "value": "ENTER A STORAGE AVCCOUNT NAME HERE"
+        },
+        "hostingPlanName": {
+            "value": "ENTER A HOSTING PLAN NAME HERE"
+        },
+        "hostingEnvironment": {
+            "value": ""
+        },
+        "location": {
+            "value": "South Central US"
+        },
+        "sku": {
+            "value": "Basic"
+        },
+        "skuCode": {
+            "value": "B1"
+        },
+        "workerSize": {
+            "value": "0"
+        },
+        "serverFarmResourceGroup": {
+            "value": "ENTER YOUR RESOURCE GROUP NAME HERE"
+        },
+        "jobCollectionName": {
+            "value": "ENTER A SCHEDULER JOB COLLECTION NAME HERE"
+        },
+        "jobCollectionLocation": {
+            "value": "southcentralus"
+        },
+        "jobName": {
+            "value": "ENTER A NAME FOR YOUR SCHEDULER JOB HERE"
+        },
+        "subscriptionId": {
+            "value": "ENTER YOUR SUBCRIPTION ID (GUID) HERE"
+        }
+    }
+}

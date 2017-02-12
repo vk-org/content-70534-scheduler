@@ -1,0 +1,238 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "name": {
+            "type": "String"
+        },
+        "storageName": {
+            "type": "String"
+        },
+        "hostingPlanName": {
+            "type": "String"
+        },
+        "hostingEnvironment": {
+            "type": "String"
+        },
+        "location": {
+            "type": "String"
+        },
+        "sku": {
+            "type": "String"
+        },
+        "skuCode": {
+            "type": "String"
+        },
+        "workerSize": {
+            "type": "String"
+        },
+        "serverFarmResourceGroup": {
+            "type": "String"
+        },
+        "jobCollectionName": {
+            "type": "String"
+        },
+        "jobCollectionLocation": {
+            "type": "String"
+        },
+        "jobName": {
+            "type": "String"
+        },
+        "subscriptionId": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/sites",
+            "kind": "functionapp",
+            "name": "[parameters('name')]",
+            "apiVersion": "2016-03-01",
+            "location": "[parameters('location')]",
+            "tags": {
+                "[concat('hidden-related:', '/subscriptions/', parameters('subscriptionId'),'/resourcegroups/', parameters('serverFarmResourceGroup'), '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]": "empty"
+            },
+            "properties": {
+                "name": "[parameters('name')]",
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "AzureWebJobsDashboard",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storageName'),';AccountKey=',listKeys(resourceId('97e0ca4a-7ce0-4828-854f-17e3693c1d9e','la534schedrg','Microsoft.Storage/storageAccounts', parameters('storageName')), '2015-05-01-preview').key1)]"
+                        },
+                        {
+                            "name": "AzureWebJobsStorage",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storageName'),';AccountKey=',listKeys(resourceId('97e0ca4a-7ce0-4828-854f-17e3693c1d9e','la534schedrg','Microsoft.Storage/storageAccounts', parameters('storageName')), '2015-05-01-preview').key1)]"
+                        },
+                        {
+                            "name": "FUNCTIONS_EXTENSION_VERSION",
+                            "value": "~1"
+                        },
+                        {
+                            "name": "WEBSITE_NODE_DEFAULT_VERSION",
+                            "value": "6.5.0"
+                        }
+                    ],
+                    "alwaysOn": true
+                },
+                "clientAffinityEnabled": false,
+                "serverFarmId": "[concat('/subscriptions/', parameters('subscriptionId'),'/resourcegroups/', parameters('serverFarmResourceGroup'), '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
+                "hostingEnvironment": "[parameters('hostingEnvironment')]"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "sku": {
+                "Tier": "[parameters('sku')]",
+                "Name": "[parameters('skuCode')]"
+            },
+            "name": "[parameters('hostingPlanName')]",
+            "apiVersion": "2016-09-01",
+            "location": "[parameters('location')]",
+            "properties": {
+                "name": "[parameters('hostingPlanName')]",
+                "workerSizeId": "[parameters('workerSize')]",
+                "reserved": false,
+                "numberOfWorkers": "1",
+                "hostingEnvironment": "[parameters('hostingEnvironment')]"
+            }
+        },
+        {
+            "type": "Microsoft.Scheduler/jobCollections",
+            "name": "[parameters('jobCollectionName')]",
+            "apiVersion": "2016-03-01",
+            "location": "[parameters('jobCollectionLocation')]",
+            "properties": {
+                "sku": {
+                    "name": "Standard"
+                },
+                "quota": {
+                    "maxJobCount": 50,
+                    "maxRecurrence": {
+                        "frequency": "minute",
+                        "interval": 1
+                    }
+                }
+            },
+            "resources": [
+                {
+                    "type": "jobs",
+                    "name": "[parameters('jobName')]",
+                    "apiVersion": "2016-03-01",
+                    "location": "[parameters('jobCollectionLocation')]",
+                    "properties": {
+                        "state": null,
+                        "startTime": "2017-02-09T17:00:00.000Z",
+                        "action": {
+                            "type": "HTTP",
+                            "request": {
+                                "uri": "https://la534sched.azurewebsites.net/api/launchschedule?code=N0wkem59psZQL7asKXugJu2d59hRnP8qqDuPAx5cNqTzD1/hsKC0Kg==",
+                                "method": "GET",
+                                "body": null,
+                                "headers": null,
+                                "authentication": null
+                            },
+                            "queueMessage": null,
+                            "serviceBusQueueMessage": null,
+                            "serviceBusTopicMessage": null,
+                            "retryPolicy": {
+                                "retryType": "fixed",
+                                "retryInterval": null,
+                                "retryCount": null
+                            },
+                            "errorAction": {
+                                "type": null,
+                                "request": {
+                                    "uri": null,
+                                    "method": null,
+                                    "body": null,
+                                    "headers": {},
+                                    "authentication": {
+                                        "type": null,
+                                        "username": null,
+                                        "password": null,
+                                        "pfx": null,
+                                        "certificateThumbprint": null,
+                                        "certificateSubjectName": null,
+                                        "certificateExpiration": null,
+                                        "tenant": null,
+                                        "audience": null,
+                                        "clientId": null,
+                                        "secret": null
+                                    }
+                                },
+                                "queueMessage": {
+                                    "message": null,
+                                    "storageAccount": null,
+                                    "queueName": null,
+                                    "sasToken": null
+                                },
+                                "serviceBusQueueMessage": {
+                                    "namespace": null,
+                                    "queueName": null,
+                                    "transportType": null,
+                                    "message": null,
+                                    "authentication": {
+                                        "type": null,
+                                        "sasKeyName": null,
+                                        "sasKey": null
+                                    },
+                                    "brokeredMessageProperties": {
+                                        "contentType": null,
+                                        "correlationId": null,
+                                        "forcePersistence": null,
+                                        "label": null,
+                                        "messageId": null,
+                                        "replyTo": null,
+                                        "replyToSessionId": null,
+                                        "sessionId": null,
+                                        "timeToLive": null,
+                                        "to": null
+                                    },
+                                    "customMessageProperties": {}
+                                },
+                                "serviceBusTopicMessage": {
+                                    "namespace": null,
+                                    "topicPath": null,
+                                    "transportType": null,
+                                    "message": null,
+                                    "authentication": {
+                                        "type": null,
+                                        "sasKeyName": null,
+                                        "sasKey": null
+                                    },
+                                    "brokeredMessageProperties": {
+                                        "contentType": null,
+                                        "correlationId": null,
+                                        "forcePersistence": null,
+                                        "label": null,
+                                        "messageId": null,
+                                        "replyTo": null,
+                                        "replyToSessionId": null,
+                                        "sessionId": null,
+                                        "timeToLive": null,
+                                        "to": null
+                                    },
+                                    "customMessageProperties": {}
+                                }
+                            }
+                        },
+                        "recurrence": {
+                            "endTime": null,
+                            "count": null,
+                            "frequency": "day",
+                            "interval": 1,
+                            "schedule": null
+                        }
+                    },
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Scheduler/jobCollections', parameters('jobCollectionName'))]"
+                    ]
+                }
+            ]
+        }
+    ]
+}
